@@ -1,4 +1,5 @@
-kbflash
-notchpop
+/kbflash
+/notchpop
 *.o
+*.zip
 .DS_Store

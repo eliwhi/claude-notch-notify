@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}\"/dist/notchpop 'Claude is done' 3 >/dev/null 2>&1 & \"${CLAUDE_PLUGIN_ROOT}\"/dist/kbflash 2 5" }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}\"/dist/notchpop 'Needs you' 3 >/dev/null 2>&1 & \"${CLAUDE_PLUGIN_ROOT}\"/dist/kbflash 2 2 400 200" }
+        ]
+      }
+    ]
+  }
+}

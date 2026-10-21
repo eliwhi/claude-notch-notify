@@ -1,0 +1,15 @@
+{
+  "name": "notch-notify",
+  "description": "MacBook notch and keyboard alerts for Claude Code",
+  "owner": {
+    "name": "elliotwhittard",
+    "url": "https://github.com/elliotwhittard"
+  },
+  "plugins": [
+    {
+      "name": "notch-notify",
+      "source": "./",
+      "description": "Flashes your MacBook keyboard and pops an alert out of the notch when Claude Code finishes a reply or needs you."
+    }
+  ]
+}

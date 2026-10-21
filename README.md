@@ -12,51 +12,74 @@ know when it's done (or when it needs your approval).
 - 🔒 Caps lock light blinks **without** turning caps lock on
 - 🙈 The pop-up never steals focus, ignores clicks, and has no Dock icon
 - ⚡ Tiny native binaries, no dependencies, ~3 seconds per alert
-- 🪝 Plugs straight into [Claude Code hooks](https://docs.claude.com/en/docs/claude-code/hooks)
-
-## Requirements
-
-- A MacBook with a backlit keyboard (tested on an M5 MacBook Pro, macOS 26)
-- A notch for the full pop-up effect (without one it shows as a small tab at the top of the screen)
-- Xcode Command Line Tools (`xcode-select --install`) for `clang` and `swiftc`
-- [Claude Code](https://claude.com/claude-code) (terminal, VS Code extension, or the desktop app's Code tab)
+- 🪝 Plugs straight into [Claude Code hooks](https://code.claude.com/docs/en/hooks)
 
 ## Install
+
+Pick **one** of these. Each sets up the same alerts, so don't use more than one or you'll get double alerts.
+
+### Option 1: Claude Code plugin (easiest)
+
+Inside Claude Code, run:
+
+```
+/plugin marketplace add elliotwhittard/claude-notch-notify
+/plugin install notch-notify@notch-notify
+```
+
+That's it. The hooks set themselves up. Remove it any time from `/plugin`.
+
+### Option 2: One-line installer
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/elliotwhittard/claude-notch-notify/main/install.sh | bash
+```
+
+This downloads the prebuilt programs into `~/.claude/bin/` and adds the hooks to
+`~/.claude/settings.json`. Your existing settings are kept, a backup is saved to `settings.json.bak`,
+and running it again won't add duplicates. Add `-s -- --no-hooks` after `bash` to install only the programs.
+
+To uninstall:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/elliotwhittard/claude-notch-notify/main/uninstall.sh | bash
+```
+
+### Option 3: Build from source
+
+Needs Xcode Command Line Tools (`xcode-select --install`).
 
 ```bash
 git clone https://github.com/elliotwhittard/claude-notch-notify.git
 cd claude-notch-notify
-./install.sh
+./scripts/build.sh   # compiles into dist/
+./install.sh         # installs from dist/ and adds the hooks
 ```
 
-This compiles both tools into `~/.claude/bin/` and runs a test alert.
+After installing, **start a new Claude Code session** so it picks up the hooks.
 
-## Hook it into Claude Code
-
-Add this to `~/.claude/settings.json` (create the file if it doesn't exist; merge it in if it does):
-
-```json
-{
-  "hooks": {
-    "Stop": [
-      { "hooks": [{ "type": "command", "command": "~/.claude/bin/notchpop 'Claude is done' 3 >/dev/null 2>&1 & ~/.claude/bin/kbflash 2 5" }] }
-    ],
-    "Notification": [
-      { "hooks": [{ "type": "command", "command": "~/.claude/bin/notchpop 'Needs you' 3 >/dev/null 2>&1 & ~/.claude/bin/kbflash 2 2 400 200" }] }
-    ]
-  }
-}
-```
+## What you get
 
 | Hook | When it fires | Alert |
 | --- | --- | --- |
 | `Stop` | Claude finished responding | "Claude is done" pop-up + 2 backlight flashes + 5 caps lock flashes |
 | `Notification` | Claude is waiting on you (e.g. a permission prompt) | "Needs you" pop-up + 2 flashes of both lights |
 
+Want to customise it? With option 2 or 3, edit the commands in `~/.claude/settings.json`:
+
+```json
+"command": "~/.claude/bin/notchpop 'Claude is done' 3 >/dev/null 2>&1 & ~/.claude/bin/kbflash 2 5"
+```
+
 The `&` runs the pop-up and the keyboard flash at the same time. Want only one of them? Keep just that
 half of the command.
 
-Start a new Claude Code session afterwards so it picks up the settings.
+## Requirements
+
+- A MacBook with a backlit keyboard, macOS 13 or later (tested on an M5 MacBook Pro, macOS 26)
+- A notch for the full pop-up effect (without one it shows as a small tab at the top of the screen)
+- [Claude Code](https://claude.com/claude-code) (terminal, VS Code extension, or the desktop app's Code tab)
+- The prebuilt programs are universal (Apple Silicon + Intel). They're tested on Apple Silicon only
 
 ## Usage
 
@@ -124,11 +147,8 @@ notchpop "Tests passed" 5       # any message you like
 
 ## Uninstall
 
-```bash
-rm ~/.claude/bin/kbflash ~/.claude/bin/notchpop
-```
-
-Then remove the `hooks` entries from `~/.claude/settings.json`.
+- **Plugin:** remove it from `/plugin` in Claude Code
+- **Installer:** run the uninstall one-liner above. It removes the programs and only its own hooks
 
 ## License
 
