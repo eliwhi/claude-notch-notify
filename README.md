@@ -29,23 +29,15 @@ Pick **one** of these. Each sets up the same alerts, so don't use more than one 
 
 That's it. The hooks set themselves up. Remove it any time from `/plugin`.
 
-**Claude desktop app (Code tab):** typing `/plugin` there opens the app's plugin browser, which ignores
-`marketplace add`. Register the marketplace first by adding this to `~/.claude/settings.json`
-(merge it in if the file already has settings):
+**From your shell** (if you have the `claude` command installed):
 
-```json
-{
-  "extraKnownMarketplaces": {
-    "notch-notify": {
-      "source": { "source": "github", "repo": "eliwhi/claude-notch-notify" }
-    }
-  }
-}
+```bash
+claude plugin install notch-notify --marketplace eliwhi/claude-notch-notify
 ```
 
-Then start a new session, click **+** next to the prompt box, choose **Add plugins** (or **Plugins → Browse plugins**),
-find **Notch Notify**, and install it for your user account. If editing the file sounds fiddly, use Option 2
-instead. It works in the desktop app too.
+**Claude desktop app (Code tab):** typing `/plugin` there opens the app's plugin browser, which ignores
+`marketplace add` and doesn't list third-party marketplaces. Use **Option 2** below instead. It works with
+the desktop app, the terminal, and VS Code. Plugins installed from your shell also work in the desktop app.
 
 ### Option 2: One-line installer
 
