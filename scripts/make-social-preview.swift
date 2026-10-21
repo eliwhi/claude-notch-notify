@@ -74,6 +74,7 @@ text("Claude Code plugin  ·  one-line installer  ·  macOS", size: 24, weight: 
      color: orange, at: NSPoint(x: W / 2, y: 74), center: true)
 
 NSGraphicsContext.current = nil
-let out = CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "social-preview.png"
+guard CommandLine.arguments.count > 1 else { print("Pass the output file path."); exit(1) }
+let out = CommandLine.arguments[1]
 try! rep.representation(using: .png, properties: [:])!.write(to: URL(fileURLWithPath: out))
 print("wrote \(out)")

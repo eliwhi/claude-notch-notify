@@ -58,6 +58,7 @@ for row in 0..<2 {
 }
 
 NSGraphicsContext.current = nil
-let out = CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "icon.png"
+guard CommandLine.arguments.count > 1 else { print("Pass the output file path."); exit(1) }
+let out = CommandLine.arguments[1]
 try! rep.representation(using: .png, properties: [:])!.write(to: URL(fileURLWithPath: out))
 print("wrote \(out)")
