@@ -5,6 +5,8 @@
 **Get a visible alert on your MacBook when Claude Code finishes a reply: your keyboard flashes
 and a little pop-up grows out of the notch.**
 
+![The notch pop-up growing out of the MacBook notch with "Claude is done"](assets/demo.gif)
+
 Stop staring at the terminal while Claude works. Go do something else, and your Mac will let you
 know when it's done (or when it needs your approval).
 
