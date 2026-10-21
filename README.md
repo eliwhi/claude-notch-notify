@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/icon.png" width="128" alt="notch-notify icon"></p>
+
 # claude-notch-notify
 
 **Get a visible alert on your MacBook when Claude Code finishes a reply: your keyboard flashes
