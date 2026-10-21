@@ -144,7 +144,9 @@ final class Popup: NSObject, NSApplicationDelegate {
         window.level = .screenSaver
         window.collectionBehavior = [.canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle]
 
-        let shape = NotchShapeView(frame: NSRect(origin: .zero, size: closed.size))
+        // Build the content at the open size so the spark and text sit inside the ears,
+        // then shrink to the notch: autoresizing keeps them pinned to their sides.
+        let shape = NotchShapeView(frame: NSRect(origin: .zero, size: open.size))
         shape.autoresizingMask = [.width, .height]
         if target != nil {
             shape.onClick = { [weak self] in self?.jumpBack() }
@@ -155,7 +157,6 @@ final class Popup: NSObject, NSApplicationDelegate {
             // Leaving the pop-up gives a short grace period before it tucks away.
             if !inside { DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { s.closeIfIdle() } }
         }
-        window.contentView = shape
 
         let sparkSize = min(notchHeight - 8, 24)
         spark = SparkView(frame: NSRect(x: (ear - sparkSize) / 2 + 4, y: (openHeight - sparkSize) / 2, width: sparkSize, height: sparkSize))
@@ -173,9 +174,8 @@ final class Popup: NSObject, NSApplicationDelegate {
         label.alphaValue = 0
         shape.addSubview(label)
 
-        // Lay the subviews out for the open size, then shrink: autoresizing keeps them pinned.
-        shape.setFrameSize(open.size)
         shape.setFrameSize(closed.size)
+        window.contentView = shape
 
         window.orderFrontRegardless()
 
@@ -192,6 +192,10 @@ final class Popup: NSObject, NSApplicationDelegate {
             spark.animator().alphaValue = 1
             label.animator().alphaValue = 1
         }, completionHandler: {
+            if verbose {
+                let inside = shape.bounds.contains(self.label.frame) && shape.bounds.contains(self.spark.frame)
+                fputs("notchpop: open \(shape.bounds.size), text \(self.label.frame), spark \(self.spark.frame), all inside: \(inside)\n", stderr)
+            }
             DispatchQueue.main.asyncAfter(deadline: .now() + holdSeconds) { self.closeIfIdle() }
         })
     }
