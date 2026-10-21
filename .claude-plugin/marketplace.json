@@ -2,8 +2,8 @@
   "name": "notch-notify",
   "description": "MacBook notch and keyboard alerts for Claude Code",
   "owner": {
-    "name": "elliotwhittard",
-    "url": "https://github.com/elliotwhittard"
+    "name": "eliwhi",
+    "url": "https://github.com/eliwhi"
   },
   "plugins": [
     {

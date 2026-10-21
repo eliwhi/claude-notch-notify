@@ -1,7 +1,7 @@
 #!/bin/bash
 # Removes kbflash and notchpop from ~/.claude/bin and their hooks from ~/.claude/settings.json.
 #
-#   curl -fsSL https://raw.githubusercontent.com/elliotwhittard/claude-notch-notify/main/uninstall.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/eliwhi/claude-notch-notify/main/uninstall.sh | bash
 set -euo pipefail
 
 SETTINGS="$HOME/.claude/settings.json"

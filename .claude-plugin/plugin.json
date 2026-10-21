@@ -4,11 +4,11 @@
   "version": "1.3.0",
   "description": "Flashes your MacBook keyboard and pops an alert out of the notch when Claude Code finishes a reply or needs you.",
   "author": {
-    "name": "elliotwhittard",
-    "url": "https://github.com/elliotwhittard"
+    "name": "eliwhi",
+    "url": "https://github.com/eliwhi"
   },
-  "homepage": "https://github.com/elliotwhittard/claude-notch-notify",
-  "repository": "https://github.com/elliotwhittard/claude-notch-notify",
+  "homepage": "https://github.com/eliwhi/claude-notch-notify",
+  "repository": "https://github.com/eliwhi/claude-notch-notify",
   "license": "MIT",
   "keywords": ["macos", "macbook", "notch", "notifications", "keyboard-backlight", "hooks"]
 }

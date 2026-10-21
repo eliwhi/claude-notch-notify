@@ -23,7 +23,7 @@ Pick **one** of these. Each sets up the same alerts, so don't use more than one 
 Inside Claude Code, run:
 
 ```
-/plugin marketplace add elliotwhittard/claude-notch-notify
+/plugin marketplace add eliwhi/claude-notch-notify
 /plugin install notch-notify@notch-notify
 ```
 
@@ -32,7 +32,7 @@ That's it. The hooks set themselves up. Remove it any time from `/plugin`.
 ### Option 2: One-line installer
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/elliotwhittard/claude-notch-notify/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/eliwhi/claude-notch-notify/main/install.sh | bash
 ```
 
 This downloads the prebuilt programs into `~/.claude/bin/` and adds the hooks to
@@ -42,7 +42,7 @@ and running it again won't add duplicates. Add `-s -- --no-hooks` after `bash` t
 To uninstall:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/elliotwhittard/claude-notch-notify/main/uninstall.sh | bash
+curl -fsSL https://raw.githubusercontent.com/eliwhi/claude-notch-notify/main/uninstall.sh | bash
 ```
 
 ### Option 3: Build from source
@@ -50,7 +50,7 @@ curl -fsSL https://raw.githubusercontent.com/elliotwhittard/claude-notch-notify/
 Needs Xcode Command Line Tools (`xcode-select --install`).
 
 ```bash
-git clone https://github.com/elliotwhittard/claude-notch-notify.git
+git clone https://github.com/eliwhi/claude-notch-notify.git
 cd claude-notch-notify
 ./scripts/build.sh   # compiles into dist/
 ./install.sh         # installs from dist/ and adds the hooks

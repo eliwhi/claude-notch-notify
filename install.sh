@@ -2,13 +2,13 @@
 # Installs kbflash and notchpop to ~/.claude/bin and adds the Claude Code hooks.
 #
 # One-liner:
-#   curl -fsSL https://raw.githubusercontent.com/elliotwhittard/claude-notch-notify/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/eliwhi/claude-notch-notify/main/install.sh | bash
 #
 # Options:
 #   --no-hooks   install the programs only, don't touch ~/.claude/settings.json
 set -euo pipefail
 
-REPO="elliotwhittard/claude-notch-notify"
+REPO="eliwhi/claude-notch-notify"
 BIN_DIR="$HOME/.claude/bin"
 SETTINGS="$HOME/.claude/settings.json"
 ADD_HOOKS=1
