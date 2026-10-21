@@ -21,6 +21,28 @@ know when it's done (or when it needs your approval).
 - ⚡ Tiny native binaries, no dependencies, ~3 seconds per alert
 - 🪝 Plugs straight into [Claude Code hooks](https://code.claude.com/docs/en/hooks)
 
+## Use cases
+
+1. **Step away while Claude works.** Ask Claude Code for something that takes a while, like
+   "refactor the auth module and run the tests", then go and do something else. When it finishes,
+   the notch shows **Claude is done** and the keyboard flashes, even from across the room.
+2. **Never leave Claude waiting on a permission prompt.** When Claude needs your approval, for
+   example "create a file called notes.md", the notch shows **Needs you**, so a long task doesn't stall
+   while you're looking at another window. Click the pop-up to jump straight back.
+3. **A quiet alert for shared spaces.** In a meeting, library or open office, keep sound off (the
+   default) and rely on the pop-up and keyboard flash. Or set a sound like `Glass` when you're
+   working alone and want to hear it too.
+
+## How to test it
+
+1. Install the plugin, then start a **new** Claude Code session.
+2. Send any prompt, such as `say hi`. When the reply finishes, the notch shows **Claude is done**,
+   the keyboard backlight flashes twice and the caps lock light flashes five times.
+3. Ask for something that needs approval, such as `create a file called test.txt`. The notch shows
+   **Needs you** when the permission prompt appears.
+4. Switch to another app while an alert is showing and click the pop-up. The app that runs Claude Code
+   comes back to the front.
+
 ## Install
 
 Pick **one** of these. Each sets up the same alerts, so don't use more than one or you'll get double alerts.
