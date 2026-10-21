@@ -1,4 +1,4 @@
-# claude-glow
+# claude-notch-notify
 
 **Get a visible alert on your MacBook when Claude Code finishes a reply: your keyboard flashes
 and a little pop-up grows out of the notch.**
@@ -24,8 +24,8 @@ know when it's done (or when it needs your approval).
 ## Install
 
 ```bash
-git clone https://github.com/elliotwhittard/claude-glow.git
-cd claude-glow
+git clone https://github.com/elliotwhittard/claude-notch-notify.git
+cd claude-notch-notify
 ./install.sh
 ```
 
@@ -39,10 +39,10 @@ Add this to `~/.claude/settings.json` (create the file if it doesn't exist; merg
 {
   "hooks": {
     "Stop": [
-      { "hooks": [{ "type": "command", "command": "~/.claude/bin/notchpop 'Claude is done' 3 >/dev/null 2>&1 & ~/.claude/bin/kbflash 5" }] }
+      { "hooks": [{ "type": "command", "command": "~/.claude/bin/notchpop 'Claude is done' 3 >/dev/null 2>&1 & ~/.claude/bin/kbflash 2 5" }] }
     ],
     "Notification": [
-      { "hooks": [{ "type": "command", "command": "~/.claude/bin/notchpop 'Needs you' 3 >/dev/null 2>&1 & ~/.claude/bin/kbflash 2 400 200" }] }
+      { "hooks": [{ "type": "command", "command": "~/.claude/bin/notchpop 'Needs you' 3 >/dev/null 2>&1 & ~/.claude/bin/kbflash 2 2 400 200" }] }
     ]
   }
 }
@@ -50,8 +50,8 @@ Add this to `~/.claude/settings.json` (create the file if it doesn't exist; merg
 
 | Hook | When it fires | Alert |
 | --- | --- | --- |
-| `Stop` | Claude finished responding | "Claude is done" pop-up + 5 flashes |
-| `Notification` | Claude is waiting on you (e.g. a permission prompt) | "Needs you" pop-up + 2 slow flashes |
+| `Stop` | Claude finished responding | "Claude is done" pop-up + 2 backlight flashes + 5 caps lock flashes |
+| `Notification` | Claude is waiting on you (e.g. a permission prompt) | "Needs you" pop-up + 2 flashes of both lights |
 
 The `&` runs the pop-up and the keyboard flash at the same time. Want only one of them? Keep just that
 half of the command.
@@ -63,19 +63,22 @@ Start a new Claude Code session afterwards so it picks up the settings.
 ### kbflash
 
 ```bash
-kbflash [flashes] [on_ms] [off_ms]
+kbflash [backlight_flashes] [caps_flashes] [on_ms] [off_ms]
 ```
 
 | Argument | Default | Meaning |
 | --- | --- | --- |
-| `flashes` | `5` | Number of blinks |
+| `backlight_flashes` | `2` | Blinks of the keyboard backlight |
+| `caps_flashes` | `5` | Blinks of the green caps lock light |
 | `on_ms` | `400` | Milliseconds lit |
 | `off_ms` | `250` | Milliseconds dark |
 
 ```bash
-kbflash                   # 5 flashes, 400 ms on, 250 ms off
-kbflash 3 150 150         # 3 fast blinks
-kbflash 8 600 400         # slow and obvious
+kbflash                   # backlight x2, caps lock x5, 400 ms on, 250 ms off
+kbflash 5 5               # both lights 5 times
+kbflash 0 5               # caps lock light only
+kbflash 3 3 150 150       # 3 fast blinks of both
+kbflash 8 8 600 400       # slow and obvious
 KBFLASH_DEBUG=1 kbflash   # print what it's doing
 ```
 
@@ -98,7 +101,7 @@ notchpop "Tests passed" 5       # any message you like
 ### Add a sound
 
 ```json
-{ "type": "command", "command": "~/.claude/bin/notchpop 'Claude is done' 3 >/dev/null 2>&1 & ~/.claude/bin/kbflash 5; afplay /System/Library/Sounds/Glass.aiff" }
+{ "type": "command", "command": "~/.claude/bin/notchpop 'Claude is done' 3 >/dev/null 2>&1 & ~/.claude/bin/kbflash 2 5; afplay /System/Library/Sounds/Glass.aiff" }
 ```
 
 ## How it works

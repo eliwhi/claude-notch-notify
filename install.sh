@@ -8,6 +8,6 @@ clang -fobjc-arc -framework Foundation -framework IOKit \
   kbflash.m -o ~/.claude/bin/kbflash
 swiftc -O notchpop.swift -o ~/.claude/bin/notchpop
 echo "Installed ~/.claude/bin/kbflash and ~/.claude/bin/notchpop — testing now..."
-~/.claude/bin/notchpop "claude-glow installed" 3 &
-~/.claude/bin/kbflash 5
+~/.claude/bin/notchpop "Installed" 3 &
+~/.claude/bin/kbflash
 wait

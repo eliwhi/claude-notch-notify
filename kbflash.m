@@ -11,7 +11,7 @@
 //     kbflash.m -o kbflash
 //
 // Usage:
-//   ./kbflash [flashes=5] [on_ms=400] [off_ms=250]
+//   ./kbflash [backlight_flashes=2] [caps_flashes=5] [on_ms=400] [off_ms=250]
 //   KBFLASH_DEBUG=1 ./kbflash   (prints what it's doing)
 
 #import <Foundation/Foundation.h>
@@ -80,9 +80,11 @@ static NSArray<CapsLED *> *findCapsLEDs(IOHIDManagerRef manager) {
 
 int main(int argc, const char *argv[]) {
     @autoreleasepool {
-        int flashes = argc > 1 ? atoi(argv[1]) : 5;
-        int onMs    = argc > 2 ? atoi(argv[2]) : 400;
-        int offMs   = argc > 3 ? atoi(argv[3]) : 250;
+        int backlightFlashes = argc > 1 ? atoi(argv[1]) : 2;
+        int capsFlashes      = argc > 2 ? atoi(argv[2]) : 5;
+        int onMs             = argc > 3 ? atoi(argv[3]) : 400;
+        int offMs            = argc > 4 ? atoi(argv[4]) : 250;
+        int flashes = MAX(backlightFlashes, capsFlashes);
         verbose = getenv("KBFLASH_DEBUG") != NULL;
 
         // Keyboard backlight (optional: we still flash the caps LED without it).
@@ -117,12 +119,19 @@ int main(int argc, const char *argv[]) {
         if (verbose && client) fprintf(stderr, "kbflash: keyboard %llu, brightness %.3f, auto %d\n", kb, original, autoOn);
 
         // fadeSpeed 0 = instant change; commit NO = don't save as the user's preference.
+        // Both lights blink in step; whichever has fewer flashes drops out early.
         for (int i = 0; i < flashes; i++) {
-            if (client) [client setBrightness:1.0f fadeSpeed:0 commit:NO forKeyboard:kb];
-            setCapsLEDs(leds, 1);
+            BOOL backlight = client && i < backlightFlashes;
+            BOOL caps = i < capsFlashes;
+            if (backlight) [client setBrightness:1.0f fadeSpeed:0 commit:NO forKeyboard:kb];
+            if (caps) setCapsLEDs(leds, 1);
             usleep(onMs * 1000);
-            if (client) [client setBrightness:0.0f fadeSpeed:0 commit:NO forKeyboard:kb];
-            setCapsLEDs(leds, 0);
+            if (backlight) {
+                // After its last flash, go straight back to normal instead of staying dark.
+                float level = i == backlightFlashes - 1 ? original : 0.0f;
+                [client setBrightness:level fadeSpeed:0 commit:NO forKeyboard:kb];
+            }
+            if (caps) setCapsLEDs(leds, 0);
             usleep(offMs * 1000);
             if (verbose) fprintf(stderr, "kbflash: flash %d\n", i + 1);
         }
