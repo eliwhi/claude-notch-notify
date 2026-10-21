@@ -10,7 +10,10 @@ know when it's done (or when it needs your approval).
 - 🟠 **`notchpop`** grows a black pop-up out of the **notch** with a pulsing orange spark and a message
 - 🔁 Restores your original brightness, auto-brightness and caps lock light afterwards
 - 🔒 Caps lock light blinks **without** turning caps lock on
-- 🙈 The pop-up never steals focus, ignores clicks, and has no Dock icon
+- 👆 **Click the pop-up** to jump straight back to Claude (or your terminal / VS Code). Hover to keep it open
+- 🔔 Optional **sound** using any built-in macOS alert sound
+- ⚙️ **Settings** for messages, flash counts, pop-up time and sound, with no file editing for plugin users
+- 🙈 The pop-up never steals focus and has no Dock icon
 - ⚡ Tiny native binaries, no dependencies, ~3 seconds per alert
 - 🪝 Plugs straight into [Claude Code hooks](https://code.claude.com/docs/en/hooks)
 
@@ -75,14 +78,38 @@ After installing, **start a new Claude Code session** so it picks up the hooks.
 | `Stop` | Claude finished responding | "Claude is done" pop-up + 2 backlight flashes + 5 caps lock flashes |
 | `Notification` | Claude is waiting on you (e.g. a permission prompt) | "Needs you" pop-up + 2 flashes of both lights |
 
-Want to customise it? With option 2 or 3, edit the commands in `~/.claude/settings.json`:
+## Settings
+
+| Setting | Default | What it does |
+| --- | --- | --- |
+| Done message | `Claude is done` | Text in the notch when Claude finishes |
+| Needs-you message | `Needs you` | Text in the notch when Claude is waiting for you |
+| Keyboard backlight flashes | `2` | Backlight flashes when Claude finishes (`0` turns it off) |
+| Caps lock light flashes | `5` | Caps lock light flashes when Claude finishes (`0` turns it off) |
+| Pop-up seconds | `3` | How long the pop-up stays open |
+| Show notch pop-up | on | Turn off to only flash the keyboard |
+| Sound | `none` | A macOS sound to play: `Glass`, `Ping`, `Pop`, `Purr`, `Tink`, `Hero`, `Funk`, `Submarine`, and more |
+
+**Plugin users:** run `/plugin`, open **notch-notify** on the **Installed** tab, and choose **Configure options**.
+The settings also appear in `/config`.
+
+**Installer users:** add any of these to the `env` section of `~/.claude/settings.json`:
 
 ```json
-"command": "~/.claude/bin/notchpop 'Claude is done' 3 >/dev/null 2>&1 & ~/.claude/bin/kbflash 2 5"
+{
+  "env": {
+    "NOTCH_DONE_MESSAGE": "All done!",
+    "NOTCH_NEEDS_YOU_MESSAGE": "Your turn",
+    "NOTCH_BACKLIGHT_FLASHES": "2",
+    "NOTCH_CAPS_FLASHES": "5",
+    "NOTCH_POPUP_SECONDS": "3",
+    "NOTCH_SHOW_POPUP": "true",
+    "NOTCH_SOUND": "Glass"
+  }
+}
 ```
 
-The `&` runs the pop-up and the keyboard flash at the same time. Want only one of them? Keep just that
-half of the command.
+Start a new Claude Code session after changing settings.
 
 ## Requirements
 
@@ -124,17 +151,23 @@ notchpop [message] [seconds]
 | Argument | Default | Meaning |
 | --- | --- | --- |
 | `message` | `Done` | Text shown to the right of the notch |
-| `seconds` | `3` | How long it stays open |
+| `seconds` | `3` | How long it stays open (longer while you hover over it) |
 
 ```bash
-notchpop                        # "Done" for 3 seconds
-notchpop "Tests passed" 5       # any message you like
+notchpop                          # "Done" for 3 seconds
+notchpop "Tests passed" 5         # any message you like
+NOTCHPOP_DEBUG=1 notchpop         # print which app a click will open
 ```
 
-### Add a sound
+Clicking the pop-up opens the app it was launched from, such as Claude, Terminal, iTerm or VS Code.
 
-```json
-{ "type": "command", "command": "~/.claude/bin/notchpop 'Claude is done' 3 >/dev/null 2>&1 & ~/.claude/bin/kbflash 2 5; afplay /System/Library/Sounds/Glass.aiff" }
+### notch-alert
+
+The command the hooks run. It reads the settings above and runs the pop-up, keyboard flash and sound together.
+
+```bash
+notch-alert done        # Claude finished
+notch-alert needs-you   # Claude is waiting for you
 ```
 
 ## How it works
@@ -147,6 +180,8 @@ notchpop "Tests passed" 5       # any message you like
 - **Notch pop-up:** a borderless AppKit panel at screen-saver level, so it sits above the menu bar.
   It reads the notch's exact size from `NSScreen` (`safeAreaInsets` and the auxiliary top areas), starts
   as a black shape covering the notch, springs outwards into "ears" on each side, then shrinks back and exits.
+  To make clicks work, it walks up its parent processes when it starts and remembers the first real app
+  (the one that launched Claude Code). A click reopens that app with `NSWorkspace`.
 
 ## Caveats
 

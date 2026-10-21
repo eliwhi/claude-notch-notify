@@ -1,7 +1,7 @@
 {
   "name": "notch-notify",
   "displayName": "Notch Notify",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Flashes your MacBook keyboard and pops an alert out of the notch when Claude Code finishes a reply or needs you.",
   "author": {
     "name": "eliwhi",
@@ -10,5 +10,79 @@
   "homepage": "https://github.com/eliwhi/claude-notch-notify",
   "repository": "https://github.com/eliwhi/claude-notch-notify",
   "license": "MIT",
-  "keywords": ["macos", "macbook", "notch", "notifications", "keyboard-backlight", "hooks"]
+  "keywords": [
+    "macos",
+    "macbook",
+    "notch",
+    "notifications",
+    "keyboard-backlight",
+    "hooks"
+  ],
+  "userConfig": {
+    "done_message": {
+      "type": "string",
+      "title": "Done message",
+      "description": "Text shown in the notch when Claude finishes a reply",
+      "default": "Claude is done"
+    },
+    "needs_you_message": {
+      "type": "string",
+      "title": "Needs-you message",
+      "description": "Text shown in the notch when Claude is waiting for you",
+      "default": "Needs you"
+    },
+    "backlight_flashes": {
+      "type": "number",
+      "title": "Keyboard backlight flashes",
+      "description": "How many times the keyboard backlight flashes when Claude finishes (0 to turn off)",
+      "default": 2,
+      "min": 0,
+      "max": 20
+    },
+    "caps_flashes": {
+      "type": "number",
+      "title": "Caps lock light flashes",
+      "description": "How many times the green caps lock light flashes when Claude finishes (0 to turn off)",
+      "default": 5,
+      "min": 0,
+      "max": 20
+    },
+    "popup_seconds": {
+      "type": "number",
+      "title": "Pop-up seconds",
+      "description": "How long the notch pop-up stays open",
+      "default": 3,
+      "min": 1,
+      "max": 30
+    },
+    "show_popup": {
+      "type": "boolean",
+      "title": "Show notch pop-up",
+      "description": "Turn off to only flash the keyboard",
+      "default": true
+    },
+    "sound": {
+      "type": "string",
+      "title": "Sound",
+      "description": "macOS sound to play with each alert",
+      "options": [
+        "none",
+        "Glass",
+        "Ping",
+        "Pop",
+        "Purr",
+        "Tink",
+        "Hero",
+        "Funk",
+        "Submarine",
+        "Blow",
+        "Bottle",
+        "Frog",
+        "Morse",
+        "Sosumi",
+        "Basso"
+      ],
+      "default": "none"
+    }
+  }
 }

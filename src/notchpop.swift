@@ -1,22 +1,52 @@
 // notchpop: a small pop-up that grows out of the MacBook notch with an orange spark
 // and a message, pulses for a moment, then tucks back in.
+// Click it to jump back to the app that launched it (Claude, your terminal, VS Code...).
+// Hovering keeps it open.
 //
 // Build:
 //   swiftc -O notchpop.swift -o notchpop
 //
 // Usage:
 //   ./notchpop [message="Done"] [seconds=3]
+//   NOTCHPOP_DEBUG=1 ./notchpop   (prints which app a click will open)
 
 import AppKit
+import Darwin
 
 let args = CommandLine.arguments
 let message = args.count > 1 ? args[1] : "Done"
 let holdSeconds = args.count > 2 ? (Double(args[2]) ?? 3) : 3
+let verbose = ProcessInfo.processInfo.environment["NOTCHPOP_DEBUG"] != nil
 
 let orange = NSColor(srgbRed: 0.85, green: 0.47, blue: 0.34, alpha: 1)
 
+func parentPID(of pid: pid_t) -> pid_t {
+    var info = kinfo_proc()
+    var size = MemoryLayout<kinfo_proc>.stride
+    var mib: [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_PID, pid]
+    guard sysctl(&mib, 4, &info, &size, nil, 0) == 0, size > 0 else { return 0 }
+    return info.kp_eproc.e_ppid
+}
+
+// Walk up the process tree to the first real app (one with a Dock icon). Helper processes,
+// shells and the claude CLI itself are skipped. This must run at launch: once the hook's
+// shell exits we get re-parented and the chain is lost.
+func launchingApp() -> NSRunningApplication? {
+    var pid = getppid()
+    for _ in 0..<32 where pid > 1 {
+        if let app = NSRunningApplication(processIdentifier: pid), app.activationPolicy == .regular {
+            return app
+        }
+        pid = parentPID(of: pid)
+    }
+    return nil
+}
+
 // Black shape that hangs from the top of the screen: flat top, rounded bottom corners.
 final class NotchShapeView: NSView {
+    var onClick: (() -> Void)?
+    var onHover: ((Bool) -> Void)?
+
     override func draw(_ dirtyRect: NSRect) {
         let r = min(bounds.height / 2, 12)
         let b = bounds
@@ -30,6 +60,20 @@ final class NotchShapeView: NSView {
         path.close()
         NSColor.black.setFill()
         path.fill()
+    }
+
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+    override func mouseDown(with event: NSEvent) { onClick?() }
+
+    override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+        trackingAreas.forEach(removeTrackingArea)
+        addTrackingArea(NSTrackingArea(rect: bounds, options: [.mouseEnteredAndExited, .cursorUpdate, .activeAlways, .inVisibleRect], owner: self))
+    }
+    override func mouseEntered(with event: NSEvent) { onHover?(true) }
+    override func mouseExited(with event: NSEvent) { onHover?(false) }
+    override func cursorUpdate(with event: NSEvent) {
+        (onClick != nil ? NSCursor.pointingHand : NSCursor.arrow).set()
     }
 }
 
@@ -61,8 +105,17 @@ final class Popup: NSObject, NSApplicationDelegate {
     var spark: SparkView!
     var label: NSTextField!
     var timer: Timer?
+    var closedFrame = NSRect.zero
+    var hovering = false
+    var closing = false
+    let target = launchingApp()
 
     func applicationDidFinishLaunching(_ note: Notification) {
+        if verbose {
+            let name = target?.localizedName ?? "nothing (click disabled)"
+            fputs("notchpop: click opens \(name)\n", stderr)
+        }
+
         // Prefer the screen with a notch (the built-in display); fall back to the main screen.
         let screen = NSScreen.screens.first { $0.safeAreaInsets.top > 0 } ?? NSScreen.main!
         let sf = screen.frame
@@ -74,25 +127,34 @@ final class Popup: NSObject, NSApplicationDelegate {
             notchWidth = sf.width - left.width - right.width
         }
 
-        // Closed = exactly the notch. Open = wider "ears" on each side plus a little extra height.
+        // Closed = exactly the notch. Open = wider "ears" on each side, same height.
         let ear: CGFloat = 46
         let textWidth = max(ear, (message as NSString).size(withAttributes: [.font: NSFont.systemFont(ofSize: 13, weight: .semibold)]).width + 18)
         let closed = NSRect(x: sf.midX - notchWidth / 2, y: sf.maxY - notchHeight, width: notchWidth, height: notchHeight)
         let openWidth = notchWidth + ear + textWidth
-        let openHeight = notchHeight + 6
+        let openHeight = notchHeight // grow sideways only, never below the notch
         // Keep the notch itself centred: the left ear holds the spark, the right ear the text.
         let open = NSRect(x: sf.midX - notchWidth / 2 - ear, y: sf.maxY - openHeight, width: openWidth, height: openHeight)
+        closedFrame = closed
 
         window = NSPanel(contentRect: closed, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         window.isOpaque = false
         window.backgroundColor = .clear
         window.hasShadow = false
         window.level = .screenSaver
-        window.ignoresMouseEvents = true
         window.collectionBehavior = [.canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle]
 
         let shape = NotchShapeView(frame: NSRect(origin: .zero, size: closed.size))
         shape.autoresizingMask = [.width, .height]
+        if target != nil {
+            shape.onClick = { [weak self] in self?.jumpBack() }
+        }
+        shape.onHover = { [weak self] inside in
+            guard let s = self else { return }
+            s.hovering = inside
+            // Leaving the pop-up gives a short grace period before it tucks away.
+            if !inside { DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { s.closeIfIdle() } }
+        }
         window.contentView = shape
 
         let sparkSize = min(notchHeight - 8, 24)
@@ -130,15 +192,38 @@ final class Popup: NSObject, NSApplicationDelegate {
             spark.animator().alphaValue = 1
             label.animator().alphaValue = 1
         }, completionHandler: {
-            DispatchQueue.main.asyncAfter(deadline: .now() + holdSeconds) { self.close(to: closed) }
+            DispatchQueue.main.asyncAfter(deadline: .now() + holdSeconds) { self.closeIfIdle() }
         })
     }
 
-    func close(to closed: NSRect) {
+    // Stay open while the pointer is over the pop-up; check again shortly.
+    func closeIfIdle() {
+        if hovering {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { self.closeIfIdle() }
+        } else {
+            close()
+        }
+    }
+
+    func jumpBack() {
+        if let url = target?.bundleURL {
+            let config = NSWorkspace.OpenConfiguration()
+            config.activates = true
+            NSWorkspace.shared.openApplication(at: url, configuration: config)
+        } else {
+            target?.activate()
+        }
+        hovering = false
+        close()
+    }
+
+    func close() {
+        guard !closing else { return }
+        closing = true
         NSAnimationContext.runAnimationGroup({ ctx in
             ctx.duration = 0.25
             ctx.timingFunction = CAMediaTimingFunction(name: .easeIn)
-            window.animator().setFrame(closed, display: true)
+            window.animator().setFrame(closedFrame, display: true)
             spark.animator().alphaValue = 0
             label.animator().alphaValue = 0
         }, completionHandler: {

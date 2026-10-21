@@ -1,5 +1,5 @@
 #!/bin/bash
-# Installs kbflash and notchpop to ~/.claude/bin and adds the Claude Code hooks.
+# Installs kbflash, notchpop and notch-alert to ~/.claude/bin and adds the Claude Code hooks.
 #
 # One-liner:
 #   curl -fsSL https://raw.githubusercontent.com/eliwhi/claude-notch-notify/main/install.sh | bash
@@ -28,7 +28,7 @@ fi
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-if [[ -n "$SCRIPT_DIR" && -x "$SCRIPT_DIR/dist/kbflash" && -x "$SCRIPT_DIR/dist/notchpop" ]]; then
+if [[ -n "$SCRIPT_DIR" && -x "$SCRIPT_DIR/dist/kbflash" && -x "$SCRIPT_DIR/dist/notchpop" && -x "$SCRIPT_DIR/dist/notch-alert" ]]; then
   SRC="$SCRIPT_DIR/dist"
 else
   echo "Downloading the latest release..."
@@ -38,16 +38,16 @@ else
 fi
 
 mkdir -p "$BIN_DIR"
-install -m 755 "$SRC/kbflash" "$SRC/notchpop" "$BIN_DIR/"
-xattr -d com.apple.quarantine "$BIN_DIR/kbflash" "$BIN_DIR/notchpop" 2>/dev/null || true
-echo "Installed $BIN_DIR/kbflash and $BIN_DIR/notchpop"
+install -m 755 "$SRC/kbflash" "$SRC/notchpop" "$SRC/notch-alert" "$BIN_DIR/"
+xattr -d com.apple.quarantine "$BIN_DIR/kbflash" "$BIN_DIR/notchpop" "$BIN_DIR/notch-alert" 2>/dev/null || true
+echo "Installed kbflash, notchpop and notch-alert to $BIN_DIR"
 
 if [[ $ADD_HOOKS == 1 ]]; then
   mkdir -p "$(dirname "$SETTINGS")"
   [[ -f "$SETTINGS" ]] && cp "$SETTINGS" "$SETTINGS.bak" && echo "Backed up settings to $SETTINGS.bak"
 
   # Merge the hooks into settings.json with macOS's built-in JavaScript, keeping everything
-  # else in the file. Any older kbflash/notchpop hooks are replaced rather than duplicated.
+  # else in the file. Any older notch-notify hooks are replaced rather than duplicated.
   osascript -l JavaScript - "$SETTINGS" <<'JS'
 function run(argv) {
   const path = argv[0];
@@ -58,10 +58,10 @@ function run(argv) {
     if (text.trim()) settings = JSON.parse(text);
   }
   const ours = {
-    Stop: "~/.claude/bin/notchpop 'Claude is done' 3 >/dev/null 2>&1 & ~/.claude/bin/kbflash 2 5",
-    Notification: "~/.claude/bin/notchpop 'Needs you' 3 >/dev/null 2>&1 & ~/.claude/bin/kbflash 2 2 400 200",
+    Stop: "~/.claude/bin/notch-alert done",
+    Notification: "~/.claude/bin/notch-alert needs-you",
   };
-  const isOurs = (h) => /kbflash|notchpop/.test(h.command || "");
+  const isOurs = (h) => /kbflash|notchpop|notch-alert/.test(h.command || "");
   settings.hooks = settings.hooks || {};
   for (const event of Object.keys(ours)) {
     const groups = (settings.hooks[event] || [])
@@ -77,7 +77,6 @@ JS
 fi
 
 echo "Testing..."
-"$BIN_DIR/notchpop" "notch-notify installed" 3 >/dev/null 2>&1 &
-"$BIN_DIR/kbflash"
+NOTCH_DONE_MESSAGE="notch-notify installed" "$BIN_DIR/notch-alert" done
 wait
 echo "Done! Start a new Claude Code session to pick up the hooks."
