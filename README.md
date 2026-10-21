@@ -18,9 +18,9 @@ know when it's done (or when it needs your approval).
 
 Pick **one** of these. Each sets up the same alerts, so don't use more than one or you'll get double alerts.
 
-### Option 1: Claude Code plugin (easiest)
+### Option 1: Claude Code plugin
 
-Inside Claude Code, run:
+**Terminal or VS Code:** inside Claude Code, run:
 
 ```
 /plugin marketplace add eliwhi/claude-notch-notify
@@ -28,6 +28,24 @@ Inside Claude Code, run:
 ```
 
 That's it. The hooks set themselves up. Remove it any time from `/plugin`.
+
+**Claude desktop app (Code tab):** typing `/plugin` there opens the app's plugin browser, which ignores
+`marketplace add`. Register the marketplace first by adding this to `~/.claude/settings.json`
+(merge it in if the file already has settings):
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "notch-notify": {
+      "source": { "source": "github", "repo": "eliwhi/claude-notch-notify" }
+    }
+  }
+}
+```
+
+Then start a new session, click **+** next to the prompt box, choose **Add plugins** (or **Plugins → Browse plugins**),
+find **Notch Notify**, and install it for your user account. If editing the file sounds fiddly, use Option 2
+instead. It works in the desktop app too.
 
 ### Option 2: One-line installer
 
