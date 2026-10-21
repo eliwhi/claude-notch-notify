@@ -1,7 +1,7 @@
 {
   "name": "notch-notify",
   "displayName": "Notch Notify",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "Flashes your MacBook keyboard and pops an alert out of the notch when Claude Code finishes a reply or needs you.",
   "author": {
     "name": "eliwhi",

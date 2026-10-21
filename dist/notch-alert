@@ -12,28 +12,25 @@
 event="${1:-done}"
 dir="$(cd "$(dirname "$0")" && pwd)"
 
-# setting NAME DEFAULT: plugin option, then NOTCH_ env var, then default.
-setting() {
-  local plugin_var="CLAUDE_PLUGIN_OPTION_$1" env_var="NOTCH_$1"
-  local value="${!plugin_var:-${!env_var:-}}"
-  echo "${value:-$2}"
-}
+# Each setting: plugin option, then NOTCH_ env var, then default. Every variable is named
+# explicitly so it's clear exactly what the script reads.
 # Plugin number options can arrive as "2.0"; keep the whole number.
 whole() { local n="${1%%.*}"; [[ "$n" =~ ^[0-9]+$ ]] && echo "$n" || echo "$2"; }
 
-seconds="$(setting POPUP_SECONDS 3)"
-sound="$(setting SOUND none)"
+seconds="${CLAUDE_PLUGIN_OPTION_POPUP_SECONDS:-${NOTCH_POPUP_SECONDS:-3}}"
+sound="${CLAUDE_PLUGIN_OPTION_SOUND:-${NOTCH_SOUND:-none}}"
+show_popup="${CLAUDE_PLUGIN_OPTION_SHOW_POPUP:-${NOTCH_SHOW_POPUP:-true}}"
 if [[ "$event" == "needs-you" ]]; then
-  message="$(setting NEEDS_YOU_MESSAGE "Needs you")"
+  message="${CLAUDE_PLUGIN_OPTION_NEEDS_YOU_MESSAGE:-${NOTCH_NEEDS_YOU_MESSAGE:-Needs you}}"
   backlight=2; caps=2; on_ms=400; off_ms=200
 else
-  message="$(setting DONE_MESSAGE "Claude is done")"
-  backlight="$(whole "$(setting BACKLIGHT_FLASHES 2)" 2)"
-  caps="$(whole "$(setting CAPS_FLASHES 5)" 5)"
+  message="${CLAUDE_PLUGIN_OPTION_DONE_MESSAGE:-${NOTCH_DONE_MESSAGE:-Claude is done}}"
+  backlight="$(whole "${CLAUDE_PLUGIN_OPTION_BACKLIGHT_FLASHES:-${NOTCH_BACKLIGHT_FLASHES:-2}}" 2)"
+  caps="$(whole "${CLAUDE_PLUGIN_OPTION_CAPS_FLASHES:-${NOTCH_CAPS_FLASHES:-5}}" 5)"
   on_ms=400; off_ms=250
 fi
 
-if [[ "$(setting SHOW_POPUP true)" != "false" ]]; then
+if [[ "$show_popup" != "false" ]]; then
   "$dir/notchpop" "$message" "$seconds" >/dev/null 2>&1 &
 fi
 if [[ -n "$sound" && "$sound" != "none" && -f "/System/Library/Sounds/$sound.aiff" ]]; then
