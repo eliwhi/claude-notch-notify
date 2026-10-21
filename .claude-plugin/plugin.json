@@ -1,7 +1,7 @@
 {
   "name": "notch-notify",
   "displayName": "Notch Notify",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "description": "Flashes your MacBook keyboard and pops an alert out of the notch when Claude Code finishes a reply or needs you.",
   "author": {
     "name": "eliwhi",
@@ -19,6 +19,9 @@
     "hooks"
   ],
   "icon": "./assets/icon.png",
+  "documentationUrl": "https://github.com/eliwhi/claude-notch-notify#readme",
+  "supportUrl": "https://github.com/eliwhi/claude-notch-notify/issues",
+  "privacyPolicyUrl": "https://github.com/eliwhi/claude-notch-notify/blob/main/PRIVACY.md",
   "userConfig": {
     "done_message": {
       "type": "string",

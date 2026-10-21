@@ -224,6 +224,14 @@ source with `./scripts/build.sh` and compare. `dist/notch-alert` is a plain shel
 - **Plugin:** remove it from `/plugin` in Claude Code
 - **Installer:** run the uninstall one-liner above. It removes the programs and only its own hooks
 
+## Privacy
+
+notch-notify collects nothing and makes no network requests. See [PRIVACY.md](PRIVACY.md).
+
+## Support
+
+Found a bug or have an idea? [Open an issue](https://github.com/eliwhi/claude-notch-notify/issues).
+
 ## License
 
 [MIT](LICENSE)
