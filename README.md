@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/icon.png" width="128" alt="notch-notify icon"></p>
+![notch-notify icon](assets/icon.png)
 
 # claude-notch-notify
 
@@ -184,6 +184,31 @@ notch-alert needs-you   # Claude is waiting for you
   as a black shape covering the notch, springs outwards into "ears" on each side, then shrinks back and exits.
   To make clicks work, it walks up its parent processes when it starts and remembers the first real app
   (the one that launched Claude Code). A click reopens that app with `NSWorkspace`.
+
+## What the plugin does on your Mac
+
+Everything the plugin runs, so you can see exactly what you're installing:
+
+- **When it runs:** only on Claude Code's `Stop` event (Claude finished a reply) and `Notification` event
+  (Claude is waiting for you). Each run lasts about 3 seconds and then exits. Nothing stays running in the background.
+- **What it runs:** the `notch-alert` shell script, which starts `notchpop` (the pop-up) and `kbflash`
+  (the keyboard flash), and plays a built-in macOS sound with `afplay` if you turned sound on.
+- **What it changes:** the keyboard backlight level and the caps lock LED while flashing. Both are put back
+  as they were afterwards. Nothing is saved as a preference.
+- **What it reads:** the screen's notch size, your current keyboard brightness and caps lock LED state,
+  and the list of parent processes (to know which app a click should open). It reads nothing from your
+  conversations, files or Claude Code session.
+- **Network and data:** none. The plugin makes no network requests and sends no data anywhere.
+- **Clicks:** clicking the pop-up opens the app that launched Claude Code, such as Claude, Terminal or VS Code.
+- **Settings:** the plugin doesn't change your Claude Code settings or permissions. It only reads its own
+  options. (The separate one-line installer adds two hooks to `~/.claude/settings.json`. See Option 2.)
+
+### About the prebuilt programs
+
+`dist/kbflash` and `dist/notchpop` are compiled from the readable source in `src/` by `scripts/build.sh`.
+They're universal (Apple Silicon + Intel) and ad-hoc signed. To check them yourself, rebuild from
+source with `./scripts/build.sh` and compare. `dist/notch-alert` is a plain shell script, the same file as
+`src/notch-alert.sh`.
 
 ## Caveats
 

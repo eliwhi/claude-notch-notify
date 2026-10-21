@@ -1,5 +1,5 @@
-// Draws assets/social-preview.png (1280x640) for the GitHub repo's social preview.
-// Run: swift scripts/make-social-preview.swift
+// Draws the GitHub repo's social preview image (1280x640 PNG).
+// Run: swift scripts/make-social-preview.swift <output.png>
 import AppKit
 
 let W: CGFloat = 1280, H: CGFloat = 640
@@ -74,5 +74,6 @@ text("Claude Code plugin  ·  one-line installer  ·  macOS", size: 24, weight: 
      color: orange, at: NSPoint(x: W / 2, y: 74), center: true)
 
 NSGraphicsContext.current = nil
-try! rep.representation(using: .png, properties: [:])!.write(to: URL(fileURLWithPath: "assets/social-preview.png"))
-print("wrote assets/social-preview.png")
+let out = CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "social-preview.png"
+try! rep.representation(using: .png, properties: [:])!.write(to: URL(fileURLWithPath: out))
+print("wrote \(out)")

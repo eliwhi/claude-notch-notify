@@ -1,5 +1,5 @@
-// Draws assets/icon.png: the notch pop-up (black pill with an orange spark) on a dark tile.
-// Run: swift scripts/make-icon.swift
+// Draws the plugin icon (512x512 PNG): the notch pop-up, a black pill with an orange spark, on a dark tile.
+// Run: swift scripts/make-icon.swift <output.png>
 import AppKit
 
 let size: CGFloat = 512
@@ -58,5 +58,6 @@ for row in 0..<2 {
 }
 
 NSGraphicsContext.current = nil
-try! rep.representation(using: .png, properties: [:])!.write(to: URL(fileURLWithPath: "assets/icon.png"))
-print("wrote assets/icon.png")
+let out = CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "icon.png"
+try! rep.representation(using: .png, properties: [:])!.write(to: URL(fileURLWithPath: out))
+print("wrote \(out)")
